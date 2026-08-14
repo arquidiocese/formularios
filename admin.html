@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — Respostas dos Formulários</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .login-box { max-width: 350px; margin: 80px auto; text-align: center; }
+        .respostas-container { padding: 30px 0; }
+        .resposta-card { background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; margin-bottom: 16px; }
+        .resposta-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+        .resposta-tipo { background: var(--primary); color: white; padding: 3px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 600; text-transform: uppercase; }
+        .resposta-data { font-size: 0.78rem; color: var(--text-light); }
+        .resposta-nome { font-weight: 700; color: var(--primary); font-size: 0.9rem; margin-bottom: 10px; }
+        .resposta-item { margin-bottom: 8px; }
+        .resposta-item label { font-size: 0.75rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; display: block; }
+        .resposta-item p { font-size: 0.88rem; color: var(--text); white-space: pre-wrap; }
+        .filtros { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+        .filtro-btn { padding: 6px 14px; border-radius: 20px; border: 2px solid var(--border); background: white; font-size: 0.8rem; cursor: pointer; font-weight: 600; transition: all 0.2s; }
+        .filtro-btn:hover, .filtro-btn.active { border-color: var(--primary); background: var(--primary); color: white; }
+        .stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 25px; }
+        .stat-card { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 14px 20px; text-align: center; flex: 1; min-width: 100px; }
+        .stat-card strong { display: block; font-size: 1.5rem; color: var(--primary); }
+        .stat-card span { font-size: 0.72rem; color: var(--text-light); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>Respostas dos Formulários</h1>
+            <p>Painel administrativo</p>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Login -->
+        <div id="loginBox" class="login-box">
+            <h2 style="margin-bottom:20px;color:var(--primary)">Acesso Restrito</h2>
+            <form onsubmit="fazerLogin(event)">
+                <div class="field">
+                    <input type="password" id="senhaAdmin" placeholder="Senha de acesso" required>
+                </div>
+                <button type="submit" class="btn-primary">Entrar</button>
+            </form>
+        </div>
+
+        <!-- Conteúdo admin -->
+        <div id="adminContent" class="respostas-container hidden">
+            <div class="stats" id="stats"></div>
+            <div class="filtros" id="filtros">
+                <button class="filtro-btn active" onclick="filtrar('todos')">Todos</button>
+                <button class="filtro-btn" onclick="filtrar('historia')">História</button>
+                <button class="filtro-btn" onclick="filtrar('sacramentos')">Sacramentos</button>
+                <button class="filtro-btn" onclick="filtrar('pastorais')">Pastorais</button>
+                <button class="filtro-btn" onclick="filtrar('catequese')">Catequese</button>
+                <button class="filtro-btn" onclick="filtrar('geral')">Geral</button>
+                <button class="filtro-btn" onclick="filtrar('celebracoes')">Celebrações</button>
+            </div>
+            <div id="respostasList"></div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        const ADMIN_SENHA = 'basilica2026';
+        let todasRespostas = [];
+
+        function fazerLogin(e) {
+            e.preventDefault();
+            const senha = document.getElementById('senhaAdmin').value;
+            if (senha === ADMIN_SENHA) {
+                document.getElementById('loginBox').classList.add('hidden');
+                document.getElementById('adminContent').classList.remove('hidden');
+                carregarRespostas();
+            } else {
+                alert('Senha incorreta.');
+            }
+        }
+
+        async function carregarRespostas() {
+            const { data, error } = await supabase.from('formulario_respostas').select('*').order('created_at', { ascending: false });
+            if (error) { alert('Erro: ' + error.message); return; }
+            todasRespostas = data || [];
+            renderizarStats();
+            renderizar(todasRespostas);
+        }
+
+        function renderizarStats() {
+            const tipos = ['historia', 'sacramentos', 'pastorais', 'catequese', 'geral', 'celebracoes'];
+            let html = `<div class="stat-card"><strong>${todasRespostas.length}</strong><span>Total</span></div>`;
+            tipos.forEach(t => {
+                const count = todasRespostas.filter(r => r.tipo === t).length;
+                html += `<div class="stat-card"><strong>${count}</strong><span>${t}</span></div>`;
+            });
+            document.getElementById('stats').innerHTML = html;
+        }
+
+        function filtrar(tipo) {
+            document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            if (tipo === 'todos') {
+                renderizar(todasRespostas);
+            } else {
+                renderizar(todasRespostas.filter(r => r.tipo === tipo));
+            }
+        }
+
+        function renderizar(respostas) {
+            if (respostas.length === 0) {
+                document.getElementById('respostasList').innerHTML = '<p style="text-align:center;color:var(--text-light);padding:40px">Nenhuma resposta encontrada.</p>';
+                return;
+            }
+
+            let html = '';
+            respostas.forEach(r => {
+                html += `<div class="resposta-card">`;
+                html += `<div class="resposta-header"><span class="resposta-tipo">${r.tipo}</span><span class="resposta-data">${new Date(r.created_at).toLocaleString('pt-BR')}</span></div>`;
+                html += `<p class="resposta-nome">Respondido por: ${r.respondente}</p>`;
+
+                if (r.respostas) {
+                    Object.entries(r.respostas).forEach(([key, value]) => {
+                        if (key === 'respondente' || !value) return;
+                        const label = key.replace(/_/g, ' ');
+                        html += `<div class="resposta-item"><label>${label}</label><p>${value}</p></div>`;
+                    });
+                }
+                html += `</div>`;
+            });
+            document.getElementById('respostasList').innerHTML = html;
+        }
+    </script>
+</body>
+</html>

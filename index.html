@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulários — Basílica N. Sra. da Conceição Aparecida</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-logo">B</div>
+            <h1>Basílica Menor N. Sra. da Conceição Aparecida</h1>
+            <p>Formulários de Coleta de Informações</p>
+        </div>
+    </header>
+
+    <!-- Seletor de formulário -->
+    <main class="container">
+        <div class="intro">
+            <h2>Olá! Precisamos da sua ajuda.</h2>
+            <p>Estamos atualizando o site da Basílica e precisamos de informações sobre cada área. Selecione o formulário correspondente à sua responsabilidade e preencha com o máximo de detalhes possível.</p>
+        </div>
+
+        <div class="forms-grid" id="formsGrid">
+            <button class="form-card" onclick="abrirFormulario('historia')">
+                <span class="form-icon">🏛️</span>
+                <h3>História da Basílica</h3>
+                <p>Fundação, construção, párocos, reformas</p>
+            </button>
+            <button class="form-card" onclick="abrirFormulario('sacramentos')">
+                <span class="form-icon">✝️</span>
+                <h3>Sacramentos</h3>
+                <p>Batismo, Matrimônio, Crisma, Confissão</p>
+            </button>
+            <button class="form-card" onclick="abrirFormulario('pastorais')">
+                <span class="form-icon">🤝</span>
+                <h3>Pastorais e Grupos</h3>
+                <p>Coordenadores, horários, atividades</p>
+            </button>
+            <button class="form-card" onclick="abrirFormulario('catequese')">
+                <span class="form-icon">📖</span>
+                <h3>Catequese</h3>
+                <p>Turmas, horários, inscrições</p>
+            </button>
+            <button class="form-card" onclick="abrirFormulario('geral')">
+                <span class="form-icon">📋</span>
+                <h3>Informações Gerais</h3>
+                <p>Contato, horários, redes sociais</p>
+            </button>
+            <button class="form-card" onclick="abrirFormulario('celebracoes')">
+                <span class="form-icon">⛪</span>
+                <h3>Celebrações</h3>
+                <p>Missas, adoração, festas anuais</p>
+            </button>
+        </div>
+
+        <!-- Container do formulário ativo -->
+        <div id="formContainer" class="form-container hidden">
+            <button class="btn-voltar" onclick="voltarMenu()">← Voltar aos formulários</button>
+            <div id="formContent"></div>
+        </div>
+
+        <!-- Mensagem de sucesso -->
+        <div id="successMsg" class="success-msg hidden">
+            <span class="success-icon">✓</span>
+            <h3>Respostas enviadas com sucesso!</h3>
+            <p>Obrigado pela contribuição. Suas informações serão usadas para atualizar o site.</p>
+            <button class="btn-primary" onclick="voltarMenu()">Responder outro formulário</button>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <p>Basílica Menor Nossa Senhora da Conceição Aparecida — São José do Rio Preto/SP</p>
+    </footer>
+
+    <script src="supabase-config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
